@@ -1,11 +1,11 @@
 class Traceur
   ##
   # The traceur class provides methods to trace the execution
-  # of the Ruby interpreter and writes an SVG file into the 
+  # of the Ruby interpreter and writes an SVG file into the
   # directory you choose.
   #
   @start_time = nil
-  @svg_file = nil 
+  @svg_file = nil
   @trace_points = []
   @x = 0
   @y = 0
@@ -64,10 +64,10 @@ EOSVG
   </metadata>
   <g inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"><polyline points="0,0 
+     id="layer1"><polyline points="0,0
 EOXML
 
-  def self.watch_paths(expr, output_dir) 
+  def self.watch_paths(expr, output_dir)
 
     raise SystemCallError "Directory does not exist" unless Dir.exists?(output_dir)
 
@@ -79,13 +79,13 @@ EOXML
         @start_time ||= Time.now.strftime("%s.%L").to_f
         @x += 1 unless ((@start_time - Time.now.strftime("%s.%L").to_f).abs <= 0.1)
         if event.to_s == "call"
-          @svg_file.write " #{@x},#{@y}" 
+          @svg_file.write " #{@x},#{@y}"
           @y += 10
-          @svg_file.write " #{@x},#{@y}" 
+          @svg_file.write " #{@x},#{@y}"
         elsif event.to_s == "return"
-          @svg_file.write " #{@x},#{@y}" 
+          @svg_file.write " #{@x},#{@y}"
           @y -= 10
-          @svg_file.write " #{@x},#{@y}" 
+          @svg_file.write " #{@x},#{@y}"
         end
       end
     end
