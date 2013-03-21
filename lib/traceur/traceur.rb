@@ -1,4 +1,6 @@
 class Traceur
+
+  class NoBlockError < StandardError; end
   ##
   # The traceur class provides methods to trace the execution
   # of the Ruby interpreter and writes an SVG file into the
@@ -10,7 +12,6 @@ class Traceur
   @x = 0
   @y = 0
   @footer = <<-EOSVG
-" style="fill:none;stroke:black;stroke-width:3" />
   </g>
 </svg>
 EOSVG
@@ -64,40 +65,53 @@ EOSVG
   </metadata>
   <g inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"><polyline points="0,0
+     id="layer1">
 EOXML
 
   def self.watch_paths(expr, output_dir)
+    raise NoBlockError "You must call this method with a block" unless block_given?
+    block = Proc.new #this grabs the block
 
     raise SystemCallError "Directory does not exist" unless Dir.exists?(output_dir)
 
-    @svg_file = File.open(File.join(output_dir, "trace.svg"), 'w+')
-    @svg_file.write(@header)
+    labels = []
+    points = []
     expression = Regexp.new expr
-   proc = Proc.new do |event, file, line, id, binding, classname|
+    proc = Proc.new do |event, file, line, methodname, binding, classname|
       if expression.match file
         @start_time ||= Time.now.strftime("%s.%L").to_f
         @x += 1 unless ((@start_time - Time.now.strftime("%s.%L").to_f).abs <= 0.1)
         if event.to_s == "call"
-          @svg_file.write " #{@x},#{@y}"
+          points << " #{@x},#{@y}"
+          labels << [methodname, [@x + 5, @y - 3]]
           @y += 10
-          @svg_file.write " #{@x},#{@y}"
+          points << " #{@x},#{@y}"
         elsif event.to_s == "return"
-          @svg_file.write " #{@x},#{@y}"
+          points << " #{@x},#{@y}"
           @y -= 10
-          @svg_file.write " #{@x},#{@y}"
+          points << " #{@x},#{@y}"
         end
       end
     end
     Object.send(:set_trace_func, proc)
+    block.call
+    Object.send(:set_trace_func, nil)
+    write_svg points, labels, output_dir
   end
 
-  def self.stop
-    Object.send(:set_trace_func, nil)
+  private
 
+  def self.write_svg points, labels, directory
+    filename = "trace_#{Time.now.strftime('%Y%m%d%H%M%S')}.svg"
+    @svg_file = File.open(File.join(directory, filename), 'w+')
+    @svg_file.write(@header)
+    @svg_file.write(polygon(points))
     @svg_file.write(@footer)
-
     @svg_file.close
   end
+  def self.polygon points
+    "<polyline points=\"0,0#{ points.join }\" style=\"fill:none;stroke:black;stroke-width:3\" />"
+  end
+
 end
 
