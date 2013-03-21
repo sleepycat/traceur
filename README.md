@@ -5,8 +5,8 @@ An experiment to have some fun with SVG and learn a little more
 about Ruby.
 If you want to get a visual for what is going on in your code you can
 pass in a regular expression like ".+" or "downthetube".
-Be specific otherwise you will end up with an SVG file so big 
-that no program can open it. 
+Be specific otherwise you will end up with an SVG file so big
+that no program can open it.
 
 Usage:
 ------
@@ -16,13 +16,10 @@ require 'rubygems'
 require 'traceur'
 require 'downthetube'
 
-Traceur.watch_paths("downthetube", ".")
 
-playlists = Youtube.playlists_for "stephensam"
-videos = playlists.last.videos
-puts videos.last.title
-
-Traceur.stop
+Traceur.watch_paths("downthetube", "/home/mike/Desktop") do
+  Youtube.playlists_for "stephensam"
+end
 ```
 
 
@@ -30,7 +27,7 @@ LICENSE:
 
 (The MIT License)
 
-Copyright © 2011 Mike Williamson
+Copyright © 2013 Mike Williamson
 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
