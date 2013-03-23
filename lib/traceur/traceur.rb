@@ -1,6 +1,7 @@
+class NoBlockError < StandardError; end
+
 class Traceur
 
-  class NoBlockError < StandardError; end
   ##
   # The traceur class provides methods to trace the execution
   # of the Ruby interpreter and writes an SVG file into the
@@ -18,7 +19,7 @@ class Traceur
 EOSVG
 
   def self.watch_paths(expr, output_dir)
-    raise NoBlockError "You must call this method with a block" unless block_given?
+    raise NoBlockError, "You must call this method with a block" unless block_given?
     block = Proc.new #this grabs the block
 
     raise SystemCallError "Directory does not exist" unless Dir.exists?(output_dir)
